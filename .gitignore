@@ -1,0 +1,22 @@
+# Ignore Sphinx Output
+_build
+
+# Cache
+__pycache__
+
+# Javascripts libraries
+fabric.min.js
+jquery-2.2.4.min.js
+
+# Image file
+/samples/SwitchJudge/image/
+/samples/Tesseract/image/
+
+
+# json
+switchjudge.json
+tesseract.json
+user_roi.json
+
+# Javascript Dir
+samples/scripts/
