@@ -25,8 +25,8 @@ import time
 from datetime import datetime
 import pickle
 
-ZMQ_FRAME_GRABBER_ENDPOINT = os.getenv("ZMQ_FRAME_GRABBER_ENDPOINT")
-INACTIVITY_TIMEOUT= os.getenv("INACTIVITY_TIMEOUT")
+ZMQ_FRAME_GRABBER_ENDPOINT = os.getenv("ZMQ_FRAME_GRABBER_ENDPOINT", 'CLUSTER_BUFFER')
+INACTIVITY_TIMEOUT= os.getenv("INACTIVITY_TIMEOUT", 'INACTIVITY_TIMEOUT')
 
 # For ZMQ connetion
 ctx = zmq.Context()
