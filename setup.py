@@ -7,10 +7,8 @@ from setuptools import setup
 def main():
     setup(
         name='scorer-cloudprocessing',
-        version='0.5.0',
-        description='A Software Development Kit for Scorer Cloud Processing'
-        url='https://github.com/future-standard/',
-        zip_safe=False,
+        version='0.0.1',
+        description='A Software Development Kit for Scorer Cloud Processing',
         packages=['scorer'],
     )
 
