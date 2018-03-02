@@ -1,4 +1,4 @@
-from scorer.scorer_sdk import VideoCapture
-from scorer.scorer_sdk import Uploader
-from scorer.scorer_sdk import imshow
+from scorer.scorer-cloudprocessing import VideoCapture
+from scorer.scorer-cloudprocessing import Uploader
+from scorer.scorer-cloudprocessing import imshow
 
