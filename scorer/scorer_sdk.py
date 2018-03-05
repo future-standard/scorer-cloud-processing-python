@@ -34,12 +34,13 @@ ctx = zmq.Context()
 class VideoCapture:
     """VideoCapture class. Class for video captureing from camera.
     """
-    def __init__(self, blocking=True):
+    def __init__(self, sock, blocking=True):
+
         """Initialize the instance
         :param blocking: True if VideoCapture read data as blocking mode
 
         """
-        sock = ZMQ_FRAME_GRABBER_ENDPOINT
+        print("sock:" + sock)
         #
         self.img_sock = ctx.socket(zmq.PULL)
         #self.img_sock.setsockopt_string(zmq.SUBSCRIBE, '')
