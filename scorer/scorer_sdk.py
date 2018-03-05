@@ -24,7 +24,6 @@ import numpy as np
 import time
 from datetime import datetime
 import pickle
-import traceback
 
 ZMQ_FRAME_GRABBER_ENDPOINT = os.getenv("ZMQ_FRAME_GRABBER_ENDPOINT", 'CLUSTER_BUFFER')
 INACTIVITY_TIMEOUT= os.getenv("INACTIVITY_TIMEOUT", 'INACTIVITY_TIMEOUT')
@@ -74,7 +73,6 @@ class VideoCapture:
                     self.frame = VideoFrame(timestamp, format, rows, cols, mat_type, data)
                     self.count = 1
         except:
-            traceback.print_exc()
             if self.count == 0:
                 return (None)
         return (self.frame)
