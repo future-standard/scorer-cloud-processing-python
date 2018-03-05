@@ -68,7 +68,8 @@ class VideoCapture:
             while True:
                 socks = self.events
                 if self.img_sock in socks and socks[self.img_sock] == zmq.POLLIN:
-                    topic, id, timestamp, my_type, format, rows, cols, mat_type, data = \
+                    #topic, id, timestamp, my_type, format, rows, cols, mat_type, data = \
+                    id, timestamp, my_type, format, rows, cols, mat_type, data = \
                                              self.img_sock.recv_multipart(zmq.NOBLOCK, True, False)
                     self.frame = VideoFrame(timestamp, format, rows, cols, mat_type, data)
                     self.count = 1
