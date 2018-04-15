@@ -75,6 +75,7 @@ class VideoCapture:
                                              self.img_sock.recv_multipart(zmq.NOBLOCK, True, False)
                     self.frame = VideoFrame(timestamp, format, rows, cols, mat_type, data)
                     self.count = 1
+                    return (self.frame)
         except:
             if self.count == 0:
                 return (None)
