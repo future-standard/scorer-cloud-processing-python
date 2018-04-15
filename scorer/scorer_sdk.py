@@ -63,6 +63,9 @@ class VideoCapture:
         """
         self.events =  dict(self.poller.poll(self.timeout))
         self.count = 0
+        if len(self.events) == 0 :
+            # No Frame Data
+            return (None)
         try:
             while True:
                 socks = self.events
