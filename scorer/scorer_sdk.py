@@ -119,7 +119,8 @@ class VideoFrame:
         self.my_row = struct.unpack('!i', rows)
         self.my_col = struct.unpack('!i', cols)
         self.my_type = struct.unpack('!i', mat_type)
-        self.image = np.frombuffer(data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0]));
+        self.data = data
+        self.image = None
         self.image_format=format.decode('utf-8')
 
         epoch_time = self.my_time[0]/1000000
@@ -140,10 +141,13 @@ class VideoFrame:
         :return: bgr image data
         """
         if self.image_format == "I420":
+            self.image = np.frombuffer(self.data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0], 1));
             bgr = cv2.cvtColor(self.image, cv2.COLOR_YUV2BGR_I420)
         elif self.image_format == "BGR":
+            self.image = np.frombuffer(self.data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0], 3));
             bgr = self.image
         elif self.image_format == "RGBA":
+            self.image = np.frombuffer(self.data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0], 4));
             bgr = cv2.cvtColor(self.image, cv2.COLOR_RGBA2BGR)
         else:
             raise Exception("format is incorrect")
@@ -155,11 +159,14 @@ class VideoFrame:
         :return: gray image data
         """
         if self.image_format == "I420":
+            self.image = np.frombuffer(self.data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0], 1));
             gray = cv2.cvtColor(self.image, cv2.COLOR_YUV2GRAY_I420)
         elif self.image_format == "BGR":
+            self.image = np.frombuffer(self.data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0], 3));
             gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
         elif self.image_format == "RGBA":
-            gray = cv2.cvtColor(self.image, cv2.COLOR_RGBA2BGR)
+            self.image = np.frombuffer(self.data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0], 4));
+            gray = cv2.cvtColor(self.image, cv2.COLOR_RGBA2GRAY)
         else:
             raise Exception("format is incorrect")
         return gray
