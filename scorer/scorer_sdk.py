@@ -128,7 +128,7 @@ class VideoFrame:
         elif self.image_format == "RGBA":
             self.image = np.frombuffer(data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0], 4));
         else:
-            raise Exception("format is incorrect")
+            raise Exception("Invalid format: {0}".format(self.image_format))
 
         epoch_time = self.my_time[0]/1000000
         epoch_msec = self.my_time[0]%1000000
@@ -154,7 +154,7 @@ class VideoFrame:
         elif self.image_format == "RGBA":
             bgr = cv2.cvtColor(self.image, cv2.COLOR_RGBA2BGR)
         else:
-            raise Exception("format is incorrect")
+            raise Exception("Invalid format: {0}".format(self.image_format))
         return bgr
 
     def get_gray(self):
@@ -169,5 +169,5 @@ class VideoFrame:
         elif self.image_format == "RGBA":
             gray = cv2.cvtColor(self.image, cv2.COLOR_RGBA2GRAY)
         else:
-            raise Exception("format is incorrect")
+            raise Exception("Invalid format: {0}".format(self.image_format))
         return gray
