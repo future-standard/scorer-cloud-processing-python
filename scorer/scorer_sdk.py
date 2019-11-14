@@ -122,7 +122,7 @@ class VideoFrame:
         self.image_format=format.decode('utf-8')
 
         if self.image_format == "I420":
-            self.image = np.frombuffer(data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0], 1));
+            self.image = np.frombuffer(data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0]));
         elif self.image_format == "BGR":
             self.image = np.frombuffer(data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0], 3));
         elif self.image_format == "RGBA":
