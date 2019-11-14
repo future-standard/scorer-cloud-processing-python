@@ -125,6 +125,8 @@ class VideoFrame:
             self.image = np.frombuffer(data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0]));
         elif self.image_format == "BGR":
             self.image = np.frombuffer(data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0], 3));
+        elif self.image_format == "RGB":
+            self.image = np.frombuffer(data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0], 3));
         elif self.image_format == "RGBA":
             self.image = np.frombuffer(data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0], 4));
         else:
@@ -151,6 +153,8 @@ class VideoFrame:
             bgr = cv2.cvtColor(self.image, cv2.COLOR_YUV2BGR_I420)
         elif self.image_format == "BGR":
             bgr = self.image
+        elif self.image_format == "RGB":
+            bgr = cv2.cvtColor(self.image, cv2.COLOR_RGB2BGR)
         elif self.image_format == "RGBA":
             bgr = cv2.cvtColor(self.image, cv2.COLOR_RGBA2BGR)
         else:
@@ -166,6 +170,8 @@ class VideoFrame:
             gray = cv2.cvtColor(self.image, cv2.COLOR_YUV2GRAY_I420)
         elif self.image_format == "BGR":
             gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+        elif self.image_format == "RGB":
+            gray = cv2.cvtColor(self.image, cv2.COLOR_RGB2GRAY)
         elif self.image_format == "RGBA":
             gray = cv2.cvtColor(self.image, cv2.COLOR_RGBA2GRAY)
         else:
