@@ -1,2 +1,2 @@
-from scorer.scorer_sdk import VideoCapture
+from scorer.scorer_sdk import VideoCapture, VideoWriter
 
