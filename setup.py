@@ -10,6 +10,7 @@ def main():
         version='0.1.1',
         description='A Software Development Kit for Scorer Cloud Processing',
         packages=['scorer'],
+        install_requires=['pyzmq', 'numpy']
     )
 
 
