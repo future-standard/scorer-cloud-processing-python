@@ -117,7 +117,7 @@ class VideoFrame:
         :param mat_type: mat type of the images
         :param data: image data
         """
-        self.version = struct.unpack('!i', version)[0]
+        self.version = version.decode('utf-8')
         self.my_time = struct.unpack('!q', timestamp)
         self.frame_type = struct.unpack('!i', frame_type)[0]
         self.my_row = struct.unpack('!i', rows)
