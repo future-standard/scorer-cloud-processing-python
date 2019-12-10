@@ -119,7 +119,7 @@ class VideoFrame:
         """
         self.version = version.decode('utf-8')
         self.my_time = struct.unpack('!q', timestamp)
-        self.frame_type = struct.unpack('!i', frame_type)[0]
+        self.frame_type = struct.unpack('!h', frame_type)[0]
         self.my_row = struct.unpack('!i', rows)
         self.my_col = struct.unpack('!i', cols)
         self.my_type = struct.unpack('!i', mat_type)
