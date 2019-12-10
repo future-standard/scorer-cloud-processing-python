@@ -15,7 +15,7 @@ scorer.VideoCapture.read() returns two element tuple. (0.0.1 returns one element
 cap = scorer.VideoCapture(ZMQ_TRACKER_ENDPOINT)
 
 meta, image = cap.read()
-while meta is not None:
+while meta:
     image_mod = some_image_processing(image)
     meta, image = cap.read()
 ```
