@@ -77,7 +77,7 @@ class VideoCapture:
         # never reached
         return (None, None)
 
-    def isOpend(self):
+    def isOpened(self):
         """ Return true if VideoCapture has been ready to read
 
         :return: True of False
@@ -210,7 +210,7 @@ class VideoWriter:
         image_format = "BGR".encode('utf-8')
         self._sock.send_multipart([version, timestamp, frame_type, image_format, rows, cols, mat_type, image.tobytes()])
 
-    def isOpend(self):
+    def isOpened(self):
         """ Return true if VideoCapture has been ready to read
 
         :return: True of False
