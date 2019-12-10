@@ -191,7 +191,7 @@ class VideoFrame:
 
 class VideoWriter:
     def __init__(self, endpoint, first_metadata):
-        self._sock = zeromq_ctx.sockect(zmq.PUSH)
+        self._sock = zeromq_ctx.socket(zmq.PUSH)
         self._sock.bind(endpoint)
         self.first_metadata = first_metadata
 
