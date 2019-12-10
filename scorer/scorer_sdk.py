@@ -25,34 +25,31 @@ import time
 from datetime import datetime
 import pickle
 
-ZMQ_FRAME_GRABBER_ENDPOINT = os.getenv("ZMQ_FRAME_GRABBER_ENDPOINT", 'CLUSTER_BUFFER')
-INACTIVITY_TIMEOUT= os.getenv("INACTIVITY_TIMEOUT", 'INACTIVITY_TIMEOUT')
-
-# For ZMQ connetion
-ctx = zmq.Context()
+zeromq_ctx = zmq.Context()
 
 class VideoCapture:
     """VideoCapture class. Class for video captureing from camera.
     """
-    def __init__(self, sock, blocking=True):
+    def __init__(self, endpoint, blocking=True, timeout=1000):
 
         """Initialize the instance
+        :param endpoint: ZeroMQ Endpoint
         :param blocking: True if VideoCapture read data as blocking mode
-
+        :param timeout: polling timeout (used only blocking=True).
         """
-        print("sock:" + sock)
+        # print("sock:" + sock)
         #
-        self.img_sock = ctx.socket(zmq.PULL)
+        self.img_sock = zeromq_ctx.socket(zmq.PULL)
         #self.img_sock.setsockopt_string(zmq.SUBSCRIBE, '')
         #self.img_sock.setsockopt(zmq.RCVHWM, 1)
-        self.img_sock.connect(sock)
+        self.img_sock.connect(endpoint)
         #
         self.poller = zmq.Poller()
         self.poller.register(self.img_sock, zmq.POLLIN)
         #a
         self.blocking=blocking
-        if(blocking == True):
-            self.timeout = 1000
+        if(blocking):
+            self.timeout = timeout
         else:
             self.timeout = 0
 
@@ -65,22 +62,20 @@ class VideoCapture:
         self.count = 0
         if len(self.events) == 0 :
             # No Frame Data
-            return (None)
+            return (None, None)
         try:
             while True:
                 socks = self.events
                 if self.img_sock in socks and socks[self.img_sock] == zmq.POLLIN:
-                    #topic, id, timestamp, my_type, format, rows, cols, mat_type, data = \
-                    id, timestamp, my_type, format, rows, cols, mat_type, data = \
-                                             self.img_sock.recv_multipart(zmq.NOBLOCK, True, False)
-                    self.frame = VideoFrame(timestamp, format, rows, cols, mat_type, data)
+                    version, timestamp, frame_type, format_, rows, cols, mat_type, data = self.img_sock.recv_multipart(zmq.NOBLOCK, True, False)
+                    self.frame = VideoFrame(version, timestamp, frame_type, format_, rows, cols, mat_type, data)
                     self.count = 1
-                    return (self.frame)
+                    return (self.frame, self.frame.get_bgr())
         except:
             if self.count == 0:
-                return (None)
-        return (self.frame)
-
+                return (None, None)
+        # never reached
+        return (None, None)
 
     def isOpend(self):
         """ Return true if VideoCapture has been ready to read
@@ -105,30 +100,34 @@ class VideoFrame:
         datetime     datetime of the frame
         msec         msec of the frame
     """
-    def __init__(self, timestamp, format, rows, cols, mat_type, data):
+    def __init__(self, version, timestamp, frame_type, format_, rows, cols, mat_type, data):
         """Initialize the instance
 
+        :param version: version of the protocol
         :param timestamp: timestamp of the frame
-        :param format: image format
+        :param frame_type: type of the frame
+        :param format_: image format
         :param row: row of the images
         :param col: col of the images
         :param mat_type: mat type of the images
         :param data: image data
         """
+        self.version = struct.unpack('!i', version)[0]
         self.my_time = struct.unpack('!q', timestamp)
+        self.frame_type = struct.unpack('!i', frame_type)[0]
         self.my_row = struct.unpack('!i', rows)
         self.my_col = struct.unpack('!i', cols)
         self.my_type = struct.unpack('!i', mat_type)
-        self.image_format=format.decode('utf-8')
+        self.image_format=format_.decode('utf-8')
 
         if self.image_format == "I420":
-            self.image = np.frombuffer(data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0]));
+            self.image = np.frombuffer(data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0]))
         elif self.image_format == "BGR":
-            self.image = np.frombuffer(data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0], 3));
+            self.image = np.frombuffer(data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0], 3))
         elif self.image_format == "RGB":
-            self.image = np.frombuffer(data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0], 3));
+            self.image = np.frombuffer(data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0], 3))
         elif self.image_format == "RGBA":
-            self.image = np.frombuffer(data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0], 4));
+            self.image = np.frombuffer(data, dtype=np.uint8).reshape((self.my_row[0],self.my_col[0], 4))
         else:
             raise Exception("Invalid format: {0}".format(self.image_format))
 
@@ -141,6 +140,9 @@ class VideoFrame:
         self.datetime= datetime(*time.localtime(epoch_time)[:6])
         self.msec= epoch_msec
 
+        self.bgr = None
+        self.gray = None
+
     def get_datetime(self):
         return self.datetime
 
@@ -149,31 +151,74 @@ class VideoFrame:
 
         :return: bgr image data
         """
+        if self.bgr is not None:
+            return self.bgr
         if self.image_format == "I420":
-            bgr = cv2.cvtColor(self.image, cv2.COLOR_YUV2BGR_I420)
+            self.bgr = cv2.cvtColor(self.image, cv2.COLOR_YUV2BGR_I420)
         elif self.image_format == "BGR":
-            bgr = self.image
+            self.bgr = self.image
         elif self.image_format == "RGB":
-            bgr = cv2.cvtColor(self.image, cv2.COLOR_RGB2BGR)
+            self.bgr = cv2.cvtColor(self.image, cv2.COLOR_RGB2BGR)
         elif self.image_format == "RGBA":
-            bgr = cv2.cvtColor(self.image, cv2.COLOR_RGBA2BGR)
+            self.bgr = cv2.cvtColor(self.image, cv2.COLOR_RGBA2BGR)
         else:
             raise Exception("Invalid format: {0}".format(self.image_format))
-        return bgr
+        return self.bgr
 
     def get_gray(self):
         """Get gray image data
 
         :return: gray image data
         """
+        if self.gray is not None:
+            return self.gray
         if self.image_format == "I420":
-            gray = cv2.cvtColor(self.image, cv2.COLOR_YUV2GRAY_I420)
+            self.gray = cv2.cvtColor(self.image, cv2.COLOR_YUV2GRAY_I420)
         elif self.image_format == "BGR":
-            gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+            self.gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
         elif self.image_format == "RGB":
-            gray = cv2.cvtColor(self.image, cv2.COLOR_RGB2GRAY)
+            self.gray = cv2.cvtColor(self.image, cv2.COLOR_RGB2GRAY)
         elif self.image_format == "RGBA":
-            gray = cv2.cvtColor(self.image, cv2.COLOR_RGBA2GRAY)
+            self.gray = cv2.cvtColor(self.image, cv2.COLOR_RGBA2GRAY)
         else:
             raise Exception("Invalid format: {0}".format(self.image_format))
-        return gray
+        return self.gray
+
+class VideoWriter:
+    def __init__(self, endpoint, first_metadata):
+        self._sock = zeromq_ctx.sockect(zmq.PUSH)
+        self._sock.bind(endpoint)
+        self.first_metadata = first_metadata
+
+    def write(self, image):
+        version = struct.pack('!i', 1)
+        timestamp = struct.pack('!q', self.first_metadata.time)
+        frame_type = struct.pack('!i', 0)
+        rows = struct.pack('!i', image.shape[0])
+        cols = struct.pack('!i', image.shape[1])
+        mat_type = struct.pack('!i', 0)
+        image_format = "BGR".encode('utf-8')
+        self._sock.send_multipart([version, timestamp, frame_type, image_format, rows, cols, mat_type, image.tobytes()])
+
+    def write_with_metadata(self, meta, image):
+        version = struct.pack('!i', meta.version)
+        timestamp = struct.pack('!q', meta.time)
+        frame_type = struct.pack('!i', meta.frame_type)
+        rows = struct.pack('!i', meta.height)
+        cols = struct.pack('!i', meta.width)
+        mat_type = struct.pack('!i', meta.my_type[0])
+        image_format = "BGR".encode('utf-8')
+        self._sock.send_multipart([version, timestamp, frame_type, image_format, rows, cols, mat_type, image.tobytes()])
+
+    def isOpend(self):
+        """ Return true if VideoCapture has been ready to read
+
+        :return: True of False
+        """
+        return not(self._sock.closed)
+
+    def release(self):
+        """ Close video captureing connection
+
+        """
+        self._sock.close()
