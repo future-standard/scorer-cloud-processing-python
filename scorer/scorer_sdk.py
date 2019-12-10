@@ -24,6 +24,9 @@ import numpy as np
 import time
 from datetime import datetime
 import pickle
+import logging
+
+logger = logging.getLogger(__name__)
 
 zeromq_ctx = zmq.Context()
 
@@ -62,6 +65,7 @@ class VideoCapture:
         self.count = 0
         if len(self.events) == 0 :
             # No Frame Data
+            logger.debug(f"No Frame Data len(self.events)==0")
             return (None, None)
         try:
             while True:
@@ -73,6 +77,7 @@ class VideoCapture:
                     return (self.frame, self.frame.get_bgr())
         except:
             if self.count == 0:
+                logger.exception(f"exception happend self.count==0")
                 return (None, None)
         # never reached
         return (None, None)
