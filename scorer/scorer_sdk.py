@@ -65,7 +65,7 @@ class VideoCapture:
         self.count = 0
         if len(self.events) == 0 :
             # No Frame Data
-            logger.debug(f"No Frame Data len(self.events)==0")
+            logger.warning(f"No ZMQ events. (maybe timeout)")
             return (None, None)
         try:
             while True:
