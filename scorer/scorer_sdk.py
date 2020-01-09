@@ -196,9 +196,9 @@ class VideoWriter:
         self.first_metadata = first_metadata
 
     def write(self, image):
-        version = struct.pack('!i', 1)
+        version = "1.0".encode('utf-8')
         timestamp = struct.pack('!q', self.first_metadata.time)
-        frame_type = struct.pack('!i', 0)
+        frame_type = struct.pack('!h', 0)
         rows = struct.pack('!i', image.shape[0])
         cols = struct.pack('!i', image.shape[1])
         mat_type = struct.pack('!i', 0)
@@ -206,9 +206,9 @@ class VideoWriter:
         self._sock.send_multipart([version, timestamp, frame_type, image_format, rows, cols, mat_type, image.tobytes()])
 
     def write_with_metadata(self, meta, image):
-        version = struct.pack('!i', meta.version)
+        version = meta.version.encode('utf-8')
         timestamp = struct.pack('!q', meta.time)
-        frame_type = struct.pack('!i', meta.frame_type)
+        frame_type = struct.pack('!h', meta.frame_type)
         rows = struct.pack('!i', meta.height)
         cols = struct.pack('!i', meta.width)
         mat_type = struct.pack('!i', meta.my_type[0])
