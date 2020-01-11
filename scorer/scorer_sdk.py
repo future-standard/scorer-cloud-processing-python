@@ -70,13 +70,14 @@ class VideoCapture:
         self.events = dict(self.poller.poll(self.timeout))
         if self.perf_count:
             parf_end = time.perf_counter()
-            self.perf_counters.append(parf_end - perf_start)
 
         self.count = 0
         if len(self.events) == 0:
             # No Frame Data
             logger.warning(f"No ZMQ events. (maybe timeout)")
             return (None, None)
+        if self.perf_count:
+            self.perf_counters.append(parf_end - perf_start)
         try:
             while True:
                 socks = self.events
