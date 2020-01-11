@@ -44,7 +44,7 @@ class VideoCapture:
         #
         self.img_sock = zeromq_ctx.socket(zmq.PULL)
         #self.img_sock.setsockopt_string(zmq.SUBSCRIBE, '')
-        #self.img_sock.setsockopt(zmq.RCVHWM, 1)
+        self.img_sock.setsockopt(zmq.RCVHWM, 1)
         self.img_sock.connect(endpoint)
         #
         self.poller = zmq.Poller()
@@ -192,7 +192,7 @@ class VideoFrame:
 class VideoWriter:
     def __init__(self, endpoint, first_metadata):
         self._sock = zeromq_ctx.socket(zmq.PUSH)
-        self._sock.set_hwm(1)
+        self._sock.setsockopt(zmq.SNDHWM, 1)
         self._sock.bind(endpoint)
         self.first_metadata = first_metadata
 
