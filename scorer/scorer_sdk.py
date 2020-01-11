@@ -74,7 +74,7 @@ class VideoCapture:
         self.count = 0
         if len(self.events) == 0:
             # No Frame Data
-            logger.warning(f"No ZMQ events. (maybe timeout)")
+            logger.info(f"No ZMQ events. (maybe timeout)")
             return (None, None)
         if self.perf_count:
             self.perf_counters.append(parf_end - perf_start)
