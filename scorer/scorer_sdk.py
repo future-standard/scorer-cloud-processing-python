@@ -266,6 +266,8 @@ class VideoWriter:
         cols = struct.pack("!i", meta.width)
         mat_type = struct.pack("!i", meta.my_type[0])
         image_format = "BGR".encode("utf-8")
+        if self.perf_count:
+            perf_start = time.perf_counter()
         self._sock.send_multipart(
             [
                 version,
@@ -278,6 +280,9 @@ class VideoWriter:
                 image.tobytes(),
             ]
         )
+        if self.perf_count:
+            perf_end = time.perf_counter()
+            self.perf_counters.append(perf_end - perf_start)
 
     def isOpened(self):
         """ Return true if VideoCapture has been ready to read
