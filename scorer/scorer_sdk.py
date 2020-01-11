@@ -35,7 +35,7 @@ class VideoCapture:
     """VideoCapture class. Class for video captureing from camera.
     """
 
-    def __init__(self, endpoint, blocking=True, timeout=1000):
+    def __init__(self, endpoint, blocking=True, timeout=1000, perf_count=False):
 
         """Initialize the instance
         :param endpoint: ZeroMQ Endpoint
@@ -57,13 +57,21 @@ class VideoCapture:
             self.timeout = timeout
         else:
             self.timeout = 0
+        self.perf_count = perf_count
+        self.perf_counters = []
 
     def read(self):
         """ Get Frame data from VideoCapture
 
         :return: Frame data
         """
+        if self.perf_count:
+            perf_start = time.perf_counter()
         self.events = dict(self.poller.poll(self.timeout))
+        if self.perf_count:
+            parf_end = time.perf_counter()
+            self.perf_counters.append(parf_end - perf_start)
+
         self.count = 0
         if len(self.events) == 0:
             # No Frame Data
@@ -216,11 +224,13 @@ class VideoFrame:
 
 
 class VideoWriter:
-    def __init__(self, endpoint, first_metadata):
+    def __init__(self, endpoint, first_metadata, perf_count=False):
         self._sock = zeromq_ctx.socket(zmq.PUSH)
         self._sock.setsockopt(zmq.SNDHWM, 1)
         self._sock.bind(endpoint)
         self.first_metadata = first_metadata
+        self.perf_count = perf_count
+        self.perf_counters = []
 
     def write(self, image):
         version = "1.0".encode("utf-8")
@@ -230,6 +240,8 @@ class VideoWriter:
         cols = struct.pack("!i", image.shape[1])
         mat_type = struct.pack("!i", 0)
         image_format = "BGR".encode("utf-8")
+        if self.perf_count:
+            perf_start = time.perf_counter()
         self._sock.send_multipart(
             [
                 version,
@@ -242,6 +254,9 @@ class VideoWriter:
                 image.tobytes(),
             ]
         )
+        if self.perf_count:
+            perf_end = time.perf_counter()
+            self.perf_counters.append(perf_end - perf_start)
 
     def write_with_metadata(self, meta, image):
         version = meta.version.encode("utf-8")
